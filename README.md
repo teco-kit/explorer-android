@@ -1,4 +1,4 @@
-# explorer-android
+# explorer-java
 ![Tests](https://github.com/teco-kit/explorer-android/actions/workflows/test.yml/badge.svg)
 
 Java library for https://github.com/teco-kit/explorer. 
