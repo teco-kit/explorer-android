@@ -34,6 +34,11 @@ public class Recorder {
     }
 
 
+    /**
+     * Sends a whole dataset to the backend-server
+     * @param dataset The dataset to send
+     * @return true if the send was successful, false otherwise
+     */
     public boolean sendDataset(JSONObject dataset) {
         JSONObject sendObj = new JSONObject();
         try {

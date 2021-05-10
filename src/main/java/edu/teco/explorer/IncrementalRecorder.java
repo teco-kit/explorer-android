@@ -55,7 +55,7 @@ public abstract class IncrementalRecorder {
      * Uploads dataPoint
      * @param datapoint The dataPoint to upload as JSON
      * @param time Record time of the dataPoint
-     * @return true of the append was successful
+     * @return true if the append was successful
      */
     protected boolean uploadDataPoint(String sensorName, double datapoint, int time) {
         JSONObject req = new JSONObject();
@@ -76,7 +76,17 @@ public abstract class IncrementalRecorder {
         return false;
     }
 
+    /**
+     * Appends a single datapoint to the dataset
+     * @param datapoint The datapoint to append
+     * @return true if the append was successful
+     */
     public abstract boolean addDataPoint(String timeSeriesName, double datapoint);
 
+    /**
+     * Appends a single datapoint to the dataset
+     * @param datapoint The datapoint to append
+     * @return true if the append was successful
+     */
     public abstract boolean addDataPoint(String timeSeriesName, double datapoint, int time);
 }
