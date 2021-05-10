@@ -15,10 +15,24 @@ Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
 boolean res = recorder.sendDataset(JSONObject); // Dataset as JSONObject
 ```
 
-#### Upload datasets in increments
+#### Upload datasets in increments with custom timestamps
 
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
-IncrementalRecorder incRecorder = recorder.getIncrementalDataset(false); // true if you want to use servertime
-boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); // true if successful, false if not
+IncrementalRecorder incRecorder = recorder.getIncrementalDataset(false); // false to use custom timestamps
+boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); // true if successful, false if not.
+
+// This will throw an UnsupportedOperationException because no timestamp was provided
+boolean res = incRecorder.addDataPoint("accX", 124);
+```
+
+#### Upload datasets in increments with timestamps from server
+
+```java
+Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
+IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true); // true to use servertime
+boolean res = incRecorder.addDataPoint("accX", 123); // true if successful, false if not
+
+// This will throw an UnsupportedOperationException because a timestamp was provided
+boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); 
 ```
