@@ -9,8 +9,9 @@
         <module name="explorer-android" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.6">
       <module name="explorer-android" target="1.8" />
+      <module name="explorer-java" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

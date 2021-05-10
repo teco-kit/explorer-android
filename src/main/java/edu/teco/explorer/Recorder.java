@@ -25,8 +25,14 @@ public class Recorder {
      * @return An object to record the dataset incrementally
      */
     public IncrementalRecorder getIncrementalDataset(boolean useServerTime) throws Exception {
-        return new IncrementalRecorder(this.backendUrl, projectKey, useServerTime);
+        if (!useServerTime) {
+            return new IncrementalRecorderUserTime(this.backendUrl, projectKey);
+        }
+        else {
+            return new IncrementalRecorderServerTime(this.backendUrl, projectKey);
+        }
     }
+
 
     public boolean sendDataset(JSONObject dataset) {
         JSONObject sendObj = new JSONObject();

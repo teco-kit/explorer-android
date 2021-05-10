@@ -3,8 +3,7 @@ package edu.teco.explorer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class IncrementalRecorder {
-
+public abstract class IncrementalRecorder {
 
     private final String INITDATASETINCREMENT = "/api/deviceapi/initDatasetIncrement";
     private final String ADDDATASETINCREMENT = "/api/deviceapi/addDatasetIncrement";
@@ -52,24 +51,13 @@ public class IncrementalRecorder {
         return null;
     }
 
-
-    /**
-     * Appends a single datapoint to the dataset
-     * @param datapoint The datapoint to append
-     * @param time Record time of the dataPoint
-     * @return true of the append was successful
-     */
-    public boolean addDataPoint(String timeSeriesName, double datapoint, int time) {
-        return uploadDataPoint(timeSeriesName, datapoint,time);
-    }
-
     /**
      * Uploads dataPoint
      * @param datapoint The dataPoint to upload as JSON
      * @param time Record time of the dataPoint
      * @return true of the append was successful
      */
-    private boolean uploadDataPoint(String sensorName, double datapoint, int time) {
+    protected boolean uploadDataPoint(String sensorName, double datapoint, int time) {
         JSONObject req = new JSONObject();
         String stringTime = Integer.toString(time);
         if (this.useServerTime) {
@@ -80,7 +68,7 @@ public class IncrementalRecorder {
             req.put("time", stringTime);
             req.put("datapoint", datapoint);
             req.put("sensorname", sensorName);
-            JSONObject ret = NetworkCommunicator.sendPost(baseUrl + ADDDATASETINCREMENT, req);
+            JSONObject ret = NetworkCommunicator.sendPost(this.baseUrl + ADDDATASETINCREMENT, req);
             return ret.getInt("STATUS") == 200;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -88,7 +76,7 @@ public class IncrementalRecorder {
         return false;
     }
 
+    public abstract boolean addDataPoint(String timeSeriesName, double datapoint);
 
-
-
+    public abstract boolean addDataPoint(String timeSeriesName, double datapoint, int time);
 }
