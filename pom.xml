@@ -49,5 +49,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub tecokit Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/tecokit/explorer-java</url>
+        </repository>
+    </distributionManagement>
 
 </project>
