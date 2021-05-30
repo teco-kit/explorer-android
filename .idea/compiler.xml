@@ -6,12 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="explorer-android" />
+        <module name="ExplorerJava" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.6">
       <module name="explorer-android" target="1.8" />
       <module name="explorer-java" target="1.8" />
+      <module name="ExplorerJava" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
