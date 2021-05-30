@@ -1,9 +1,40 @@
 # explorer-java
-![Tests](https://github.com/teco-kit/explorer-android/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/teco-kit/explorer-android/actions/workflows/deploy.yml/badge.svg)
+![Maven Central](https://img.shields.io/maven-central/v/edu.teco.explorer/ExplorerJava?color=%2348c653)
 
 Java library for https://github.com/teco-kit/explorer. 
 Can be used to upload datasets as whole or incrementally. 
 Written in Java. Can be used in Android projects.
+
+## How to install
+The library can be found in Maven Central.
+
+### Gradle
+1. Add mavenCentral to you repositories if it is not alreaedy there
+```gradle
+repositories {
+  mavenCentral()
+}
+```
+
+2. Import the library
+```gradle
+dependencies {
+  implementation 'edu.teco.explorer:ExplorerJava:${VERSION}
+}
+```
+
+### Maven
+Include the library as a dependency in pom.xml
+```xml
+<dependencies>
+  <dependency>
+    <groupId>edu.teco.explorer</groupId>
+    <artifactId>ExplorerJava</artifactId>
+    <version>${VERSION}</version>
+  </dependency>
+</dependencies>
+```
 
 
 ## How to use
