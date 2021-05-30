@@ -45,10 +45,7 @@ public class Recorder {
             sendObj.put("key", this.projectKey);
             sendObj.put("payload", dataset);
             JSONObject ret = NetworkCommunicator.sendPost(this.backendUrl + this.UPLOADDATASETURL, sendObj);
-            if (ret == null || ret.getInt("STATUS") != 200) {
-                return false;
-            }
-            return true;
+            return ret != null && ret.getInt("STATUS") == 200;
         } catch (JSONException e) {
             e.printStackTrace();
         }
