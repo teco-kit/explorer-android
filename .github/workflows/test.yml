@@ -21,15 +21,13 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - name: Test with maven
-      run: mvn test --file pom.xml
-    - name: Setup mavenCentral deployment
-      with:
         server-id: ossrh
         server-username: OSSRH_USERNAME
         server-password: OSSRH_TOKEN
         gpg-private-key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
+    - name: Test with maven
+      run: mvn test --file pom.xml
     - name: Publish to mavenCentral
       run: mvn deploy
       env:
