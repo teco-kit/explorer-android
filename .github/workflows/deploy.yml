@@ -26,8 +26,6 @@ jobs:
         server-password: OSSRH_TOKEN
         gpg-private-key: ${{secrets.MAVEN_GPG_PRIVATE_KEY}}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
-    - name: Test with maven
-      run: mvn test --file pom.xml
     - name: Publish to mavenCentral
       run: mvn deploy
       env:
