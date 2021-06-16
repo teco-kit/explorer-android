@@ -19,7 +19,7 @@ boolean res = recorder.sendDataset(JSONObject); // Dataset as JSONObject
 
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
-IncrementalRecorder incRecorder = recorder.getIncrementalDataset(false); // false to use custom timestamps
+IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", false); // false to use custom timestamps
 boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); // true if successful, false if not.
 
 // This will throw an UnsupportedOperationException because no timestamp was provided
@@ -30,7 +30,7 @@ boolean res = incRecorder.addDataPoint("accX", 124);
 
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
-IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true); // true to use servertime
+IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", true); // true to use servertime
 boolean res = incRecorder.addDataPoint("accX", 123); // true if successful, false if not
 
 // This will throw an UnsupportedOperationException because a timestamp was provided

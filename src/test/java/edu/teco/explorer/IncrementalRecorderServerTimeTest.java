@@ -26,7 +26,7 @@ public class IncrementalRecorderServerTimeTest {
             when(NetworkCommunicator.sendPost(any(String.class), any(JSONObject.class))).thenReturn(retObj);
 
             recorder = new Recorder("http://localhost:3000", "fakeDatasetKey");
-            IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true);
+            IncrementalRecorder incRecorder = recorder.getIncrementalDataset("testDatasetName", true);
         }
     }
 
@@ -42,7 +42,7 @@ public class IncrementalRecorderServerTimeTest {
             when(NetworkCommunicator.sendPost(any(String.class), any(JSONObject.class))).thenReturn(retObj);
 
             recorder = new Recorder("http://localhost:3000", "fakeDatasetKey");
-            IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true);
+            IncrementalRecorder incRecorder = recorder.getIncrementalDataset("testDatasetName", true);
             boolean res = incRecorder.addDataPoint("accX", 123);
             Assertions.assertTrue(res);
         }
@@ -61,7 +61,7 @@ public class IncrementalRecorderServerTimeTest {
                 when(NetworkCommunicator.sendPost(any(String.class), any(JSONObject.class))).thenReturn(retObj);
 
                 recorder = new Recorder("http://localhost:3000", "fakeDatasetKey");
-                IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true);
+                IncrementalRecorder incRecorder = recorder.getIncrementalDataset("testDatasetName", true);
                 boolean res = incRecorder.addDataPoint("accX", 123, 2345667);
                 Assertions.assertTrue(res);
             });
@@ -79,7 +79,7 @@ public class IncrementalRecorderServerTimeTest {
                 retObj.put("STATUS", 400);
                 when(NetworkCommunicator.sendPost(any(String.class), any(JSONObject.class))).thenReturn(retObj);
                 recorder = new Recorder("http://localhost:3000", "fakeKey");
-                IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true);
+                IncrementalRecorder incRecorder = recorder.getIncrementalDataset("testDatasetName", true);
             });
         }
     }
@@ -90,7 +90,7 @@ public class IncrementalRecorderServerTimeTest {
             Assertions.assertThrows(Exception.class, () -> {
                 when(NetworkCommunicator.sendPost(any(String.class), any(JSONObject.class))).thenReturn(null);
                 recorder = new Recorder("http://localhost:3000", "fakeKey");
-                IncrementalRecorder incRecorder = recorder.getIncrementalDataset(true);
+                IncrementalRecorder incRecorder = recorder.getIncrementalDataset("testDatasetName", true);
             });
         }
     }

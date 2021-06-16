@@ -18,13 +18,14 @@ public abstract class IncrementalRecorder {
      * An object to incrementally record datasets
      * @param baseUrl The url of the backend server as well as the port
      * @param projectKey The key for the project, to be found on the settings page
+     * @param name The name of the dataset
      * @param useServerTime True if you want to use servertime instead of providing your own timestamps
      */
-    protected IncrementalRecorder(String baseUrl, String projectKey, boolean useServerTime) throws Exception {
+    protected IncrementalRecorder(String baseUrl, String projectKey, String name, boolean useServerTime) throws Exception {
         this.useServerTime = useServerTime;
         this.baseUrl = baseUrl;
         this.projectKey = projectKey;
-        this.datasetKey = getDatasetKey(baseUrl, projectKey);
+        this.datasetKey = getDatasetKey(baseUrl, projectKey, name);
         if (this.datasetKey == null) {
             throw new Exception("Could not generate incremental dataset");
         }
@@ -34,12 +35,14 @@ public abstract class IncrementalRecorder {
      * Obtains the dataset key which can be used to append datapoints to this new dataset
      * @param baseUrl The url of the backend with port
      * @param projectKey The key to the project under which the new dataset is created
+     * @param name The name of the dataset
      * @return Returns the datasetKey or null if an error occurred
      */
-    private String getDatasetKey(String baseUrl, String projectKey) {
+    private String getDatasetKey(String baseUrl, String projectKey, String name) {
         JSONObject req = new JSONObject();
         try {
             req.put("deviceApiKey", projectKey);
+            req.put("name", name);
             JSONObject ret = NetworkCommunicator.sendPost(baseUrl + INITDATASETINCREMENT, req);
             if (ret.getInt("STATUS") != 200) {
                 return null;

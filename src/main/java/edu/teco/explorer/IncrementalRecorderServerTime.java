@@ -6,9 +6,10 @@ public class IncrementalRecorderServerTime extends IncrementalRecorder{
      * An object to incrementally record datasets
      * @param baseUrl       The url of the backend server as well as the port
      * @param projectKey    The key for the project, to be found on the settings page
+     * @param name          The name of the dataset
      */
-    protected IncrementalRecorderServerTime(String baseUrl, String projectKey) throws Exception {
-        super(baseUrl, projectKey, true);
+    protected IncrementalRecorderServerTime(String baseUrl, String projectKey, String name) throws Exception {
+        super(baseUrl, projectKey, name,true);
     }
 
 
