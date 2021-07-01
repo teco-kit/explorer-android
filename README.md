@@ -58,6 +58,7 @@ CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 159550631
 // This will throw an UnsupportedOperationException because no timestamp was provided
 CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 124);
 
+// Wait until all values have been send
 incRecorder.onComplete();
 ```
 
@@ -71,5 +72,8 @@ IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", 
 CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123);
 
 // This will throw an UnsupportedOperationException because a timestamp was provided
-CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316); 
+CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316);
+
+// Wait until all values have been send
+incRecorder.onComplete();
 ```
