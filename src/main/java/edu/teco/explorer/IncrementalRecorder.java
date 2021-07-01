@@ -2,6 +2,9 @@ package edu.teco.explorer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class IncrementalRecorder {
 
@@ -12,23 +15,25 @@ public abstract class IncrementalRecorder {
     private String baseUrl;
     private String projectKey;
     private String datasetKey;
+    private ExecutorService executorService;
 
 
     /**
      * An object to incrementally record datasets
      * @param baseUrl The url of the backend server as well as the port
      * @param projectKey The key for the project, to be found on the settings page
-     * @param name The name of the dataset
+     * @param datasetName The name of the dataset
      * @param useServerTime True if you want to use servertime instead of providing your own timestamps
      */
-    protected IncrementalRecorder(String baseUrl, String projectKey, String name, boolean useServerTime) throws Exception {
+    protected IncrementalRecorder(String baseUrl, String projectKey, String datasetName, boolean useServerTime) throws Exception {
         this.useServerTime = useServerTime;
         this.baseUrl = baseUrl;
         this.projectKey = projectKey;
-        this.datasetKey = getDatasetKey(baseUrl, projectKey, name);
+        this.datasetKey = getDatasetKey(baseUrl, projectKey, datasetName);
         if (this.datasetKey == null) {
             throw new Exception("Could not generate incremental dataset");
         }
+        this.executorService = Executors.newFixedThreadPool(2);
     }
 
     /**
@@ -60,36 +65,49 @@ public abstract class IncrementalRecorder {
      * @param time Record time of the dataPoint
      * @return true if the append was successful
      */
-    protected boolean uploadDataPoint(String sensorName, double datapoint, int time) {
-        JSONObject req = new JSONObject();
-        String stringTime = Integer.toString(time);
-        if (this.useServerTime) {
-            stringTime = null;
-        }
-        try {
-            req.put("datasetKey", this.datasetKey);
-            req.put("time", stringTime);
-            req.put("datapoint", datapoint);
-            req.put("sensorname", sensorName);
-            JSONObject ret = NetworkCommunicator.sendPost(this.baseUrl + ADDDATASETINCREMENT, req);
-            return ret.getInt("STATUS") == 200;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return false;
+    protected CompletableFuture<Boolean> uploadDataPoint(String sensorName, double datapoint, long time) {
+        CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
+
+            JSONObject req = new JSONObject();
+            String stringTime = Long.toString(time);
+            if (this.useServerTime) {
+                stringTime = null;
+            }
+            try {
+                req.put("datasetKey", this.datasetKey);
+                req.put("time", stringTime);
+                req.put("datapoint", datapoint);
+                req.put("sensorname", sensorName);
+                JSONObject ret = NetworkCommunicator.sendPost(this.baseUrl + ADDDATASETINCREMENT, req);
+                System.out.println("RES: " + ret);
+                return ret.getInt("STATUS") == 200;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                System.out.println("EXCEPTION");
+                return false;
+            }
+        }, this.executorService);
+        return future;
+    }
+
+    public void onComplete() {
+        this.executorService.shutdown();
     }
 
     /**
      * Appends a single datapoint to the dataset
-     * @param datapoint The datapoint to append
+     * @param sensorName The datapoint to append
+     * @param value The value to transmit
      * @return true if the append was successful
      */
-    public abstract boolean addDataPoint(String timeSeriesName, double datapoint);
+    public abstract CompletableFuture<Boolean> addDataPoint(String sensorName, double value);
 
     /**
      * Appends a single datapoint to the dataset
-     * @param datapoint The datapoint to append
+     * @param time Record time of the dataPoint
+     * @param sensorName The datapoint to append
+     * @param value The value to transmit
      * @return true if the append was successful
      */
-    public abstract boolean addDataPoint(String timeSeriesName, double datapoint, int time);
+    public abstract CompletableFuture<Boolean> addDataPoint(long time, String sensorName, double value);
 }

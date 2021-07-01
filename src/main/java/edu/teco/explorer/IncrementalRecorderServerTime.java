@@ -1,34 +1,36 @@
 package edu.teco.explorer;
 
+import java.util.concurrent.CompletableFuture;
+
 public class IncrementalRecorderServerTime extends IncrementalRecorder{
 
     /**
      * An object to incrementally record datasets
      * @param baseUrl       The url of the backend server as well as the port
      * @param projectKey    The key for the project, to be found on the settings page
-     * @param name          The name of the dataset
+     * @param datasetName          The name of the dataset
      */
-    protected IncrementalRecorderServerTime(String baseUrl, String projectKey, String name) throws Exception {
-        super(baseUrl, projectKey, name,true);
+    protected IncrementalRecorderServerTime(String baseUrl, String projectKey, String datasetName) throws Exception {
+        super(baseUrl, projectKey, datasetName, true);
     }
 
 
     /**
      * Appends a single datapoint to the dataset
-     * @param datapoint The datapoint to append
+     * @param sensorName The datapoint to append
+     * @param value The value to transmit
      * @return true if the append was successful
      */
-    public boolean addDataPoint(String timeSeriesName, double datapoint) {
-        return super.uploadDataPoint(timeSeriesName, datapoint, -1);
+    public CompletableFuture<Boolean> addDataPoint(String sensorName, double value) {
+        return super.uploadDataPoint(sensorName, value, -1);
     }
 
     /**
      * Dummy method. Do not use this method
-     * @param datapoint The datapoint to append
      * @throws UnsupportedOperationException Always
      */
     @Override
-    public boolean addDataPoint(String timeSeriesName, double datapoint, int time) throws UnsupportedOperationException {
+    public CompletableFuture<Boolean> addDataPoint(long time, String sensorName, double value) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("You probably wanted to use the other addDataPoint - method");
     }
 }

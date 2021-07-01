@@ -51,10 +51,14 @@ boolean res = recorder.sendDataset(JSONObject); // Dataset as JSONObject
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
 IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", false); // false to use custom timestamps
-boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); // true if successful, false if not.
+
+// The CompletableFuture indicates whether the transmission was successful
+CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316);
 
 // This will throw an UnsupportedOperationException because no timestamp was provided
-boolean res = incRecorder.addDataPoint("accX", 124);
+CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 124);
+
+incRecorder.onComplete();
 ```
 
 #### Upload datasets in increments with timestamps from server
@@ -62,8 +66,10 @@ boolean res = incRecorder.addDataPoint("accX", 124);
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
 IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", true); // true to use servertime
-boolean res = incRecorder.addDataPoint("accX", 123); // true if successful, false if not
+
+// The CompletableFuture indicates whether the transmission was successful
+CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123);
 
 // This will throw an UnsupportedOperationException because a timestamp was provided
-boolean res = incRecorder.addDataPoint("accX", 123, 1595506316); 
+CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316); 
 ```
