@@ -2,21 +2,15 @@ package edu.teco.explorer;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import java.util.concurrent.CompletableFuture;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @Disabled
 public class IncrementalRecorderUserTimeTest {
 
     private Recorder recorder;
-    MockedStatic<NetworkCommunicator> communicator;
 
     @Test
     public void generateRecorder() throws Exception {

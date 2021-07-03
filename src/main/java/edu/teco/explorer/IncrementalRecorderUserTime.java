@@ -29,7 +29,6 @@ public class IncrementalRecorderUserTime extends IncrementalRecorder{
      * @param time Record time of the dataPoint
      * @param sensorName The datapoint to append
      * @param value The value to transmit
-     * @return true if the append was successful
      */
     public void addDataPoint(long time, String sensorName, double value) {
         super.uploadDataPoint(sensorName, value, time);

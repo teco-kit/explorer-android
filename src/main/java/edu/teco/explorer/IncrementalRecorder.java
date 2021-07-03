@@ -78,7 +78,6 @@ public abstract class IncrementalRecorder {
      * Uploads dataPoint
      * @param datapoint The dataPoint to upload as JSON
      * @param time Record time of the dataPoint
-     * @return true if the append was successful
      */
     protected void uploadDataPoint(String sensorName, double datapoint, long time) {
         synchronized (sync) {
@@ -100,8 +99,12 @@ public abstract class IncrementalRecorder {
         }
     }
 
-    protected CompletableFuture<Boolean> upload(Map<String, List<Pair<Long, String>>> tmpMap) {
-        CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
+    /**
+     *  Uploads the collected datapoints in bulk
+     * @param tmpMap The datapoints to upload
+     */
+    protected void upload(Map<String, List<Pair<Long, String>>> tmpMap) {
+        Runnable runnable = () -> {
             Set<String> keySet = tmpMap.keySet();
             JSONObject req = new JSONObject();
             req.put("datasetKey", this.datasetKey);
@@ -112,7 +115,7 @@ public abstract class IncrementalRecorder {
                 JSONArray timeSeriesData = new JSONArray();
                 long start = Long.MAX_VALUE;
                 long end = Long.MIN_VALUE;
-                for (Pair<Long, String> sensorData: tmpMap.get(sensorname)) {
+                for (Pair<Long, String> sensorData : tmpMap.get(sensorname)) {
                     if (sensorData.getFirst() < start) {
                         start = sensorData.getFirst();
                     }
@@ -131,9 +134,11 @@ public abstract class IncrementalRecorder {
             }
             req.put("data", data);
             JSONObject ret = communicator.sendPost(req);
-            return ret.getInt("STATUS") == 200;
-        }, this.executorService);
-        return future;
+            if (ret.getInt("STATUS") != 200) {
+                throw new RuntimeException("Upload failed");
+            }
+        };
+        this.executorService.execute(runnable);
     }
 
     public void onComplete() {
