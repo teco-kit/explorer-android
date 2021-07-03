@@ -19,7 +19,7 @@ public class IncrementalRecorderUserTime extends IncrementalRecorder{
      * @throws UnsupportedOperationException Always
      */
     @Override
-    public CompletableFuture<Boolean> addDataPoint(String timeSeriesName, double datapoint) throws UnsupportedOperationException {
+    public void addDataPoint(String timeSeriesName, double datapoint) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("You probably wanted to use the other addDataPoint - method");
     }
 
@@ -31,8 +31,8 @@ public class IncrementalRecorderUserTime extends IncrementalRecorder{
      * @param value The value to transmit
      * @return true if the append was successful
      */
-    public CompletableFuture<Boolean> addDataPoint(long time, String sensorName, double value) {
-        return super.uploadDataPoint(sensorName, value, time);
+    public void addDataPoint(long time, String sensorName, double value) {
+        super.uploadDataPoint(sensorName, value, time);
     }
 
 }

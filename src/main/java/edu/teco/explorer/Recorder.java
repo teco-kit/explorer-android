@@ -21,16 +21,16 @@ public class Recorder {
 
     /**
      * Upload datasets in increments
-     * @param useServerTime True if you don't want to provide own timestamps
+     * @param useDeviceTime True if you don't want to provide own timestamps
      * @param name The name of the dataset
      * @return An object to record the dataset incrementally
      */
-    public IncrementalRecorder getIncrementalDataset(String name, boolean useServerTime) throws Exception {
-        if (!useServerTime) {
+    public IncrementalRecorder getIncrementalDataset(String name, boolean useDeviceTime) throws Exception {
+        if (!useDeviceTime) {
             return new IncrementalRecorderUserTime(this.backendUrl, projectKey, name);
         }
         else {
-            return new IncrementalRecorderServerTime(this.backendUrl, projectKey, name);
+            return new IncrementalRecorderDeviceTime(this.backendUrl, projectKey, name);
         }
     }
 
@@ -45,7 +45,7 @@ public class Recorder {
         try {
             sendObj.put("key", this.projectKey);
             sendObj.put("payload", dataset);
-            JSONObject ret = NetworkCommunicator.sendPost(this.backendUrl + this.UPLOADDATASETURL, sendObj);
+            JSONObject ret = new NetworkCommunicator(this.backendUrl + this.UPLOADDATASETURL).sendPost( sendObj);
             return ret != null && ret.getInt("STATUS") == 200;
         } catch (JSONException e) {
             e.printStackTrace();

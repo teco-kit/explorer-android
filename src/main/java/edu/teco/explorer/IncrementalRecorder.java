@@ -1,21 +1,33 @@
 package edu.teco.explorer;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public abstract class IncrementalRecorder {
 
     private final String INITDATASETINCREMENT = "/api/deviceapi/initDatasetIncrement";
     private final String ADDDATASETINCREMENT = "/api/deviceapi/addDatasetIncrement";
+    private final String ADDDATASETINCREMENTBATCH = "/api/deviceapi/addDatasetIncrementBatch";
 
-    private boolean useServerTime;
+    private final Object sync = new Object();
+
+    private boolean useDeviceTime;
     private String baseUrl;
     private String projectKey;
     private String datasetKey;
+    private int counter;
+
+    private NetworkCommunicator communicator;
+
     private ExecutorService executorService;
+    private HashMap<String, List<Pair<Long, String>>> dataStore;
 
 
     /**
@@ -23,17 +35,20 @@ public abstract class IncrementalRecorder {
      * @param baseUrl The url of the backend server as well as the port
      * @param projectKey The key for the project, to be found on the settings page
      * @param datasetName The name of the dataset
-     * @param useServerTime True if you want to use servertime instead of providing your own timestamps
+     * @param useDeviceTime True if you want to use the time from the device instead of providing your own timestamps
      */
-    protected IncrementalRecorder(String baseUrl, String projectKey, String datasetName, boolean useServerTime) throws Exception {
-        this.useServerTime = useServerTime;
+    protected IncrementalRecorder(String baseUrl, String projectKey, String datasetName, boolean useDeviceTime) throws Exception {
+        this.useDeviceTime = useDeviceTime;
         this.baseUrl = baseUrl;
+        this.counter = 0;
         this.projectKey = projectKey;
+        this.dataStore = new HashMap<>();
+        this.communicator = new NetworkCommunicator(this.baseUrl + ADDDATASETINCREMENTBATCH);
         this.datasetKey = getDatasetKey(baseUrl, projectKey, datasetName);
         if (this.datasetKey == null) {
             throw new Exception("Could not generate incremental dataset");
         }
-        this.executorService = Executors.newFixedThreadPool(2);
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -48,7 +63,7 @@ public abstract class IncrementalRecorder {
         try {
             req.put("deviceApiKey", projectKey);
             req.put("name", name);
-            JSONObject ret = NetworkCommunicator.sendPost(baseUrl + INITDATASETINCREMENT, req);
+            JSONObject ret = new NetworkCommunicator(baseUrl + INITDATASETINCREMENT).sendPost(req);
             if (ret.getInt("STATUS") != 200) {
                 return null;
             }
@@ -65,33 +80,69 @@ public abstract class IncrementalRecorder {
      * @param time Record time of the dataPoint
      * @return true if the append was successful
      */
-    protected CompletableFuture<Boolean> uploadDataPoint(String sensorName, double datapoint, long time) {
-        CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
+    protected void uploadDataPoint(String sensorName, double datapoint, long time) {
+        synchronized (sync) {
+            if (!this.dataStore.containsKey(sensorName)) {
+                this.dataStore.put(sensorName, new LinkedList<>());
+            }
+            if (this.useDeviceTime) {
+                time = new Date().getTime();
+            }
+            this.dataStore.get(sensorName).add(new Pair(time, datapoint));
+            this.counter++;
+            if (this.counter > 1000) {
+                Map<String, List<Pair<Long, String>>> tmpMap;
+                tmpMap = this.dataStore;
+                this.dataStore = new HashMap<>();
+                this.upload(tmpMap);
+                this.counter = 0;
+            }
+        }
+    }
 
+    protected CompletableFuture<Boolean> upload(Map<String, List<Pair<Long, String>>> tmpMap) {
+        CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
+            Set<String> keySet = tmpMap.keySet();
             JSONObject req = new JSONObject();
-            String stringTime = Long.toString(time);
-            if (this.useServerTime) {
-                stringTime = null;
+            req.put("datasetKey", this.datasetKey);
+            JSONArray data = new JSONArray();
+            for (String sensorname : keySet) {
+                JSONObject sensor = new JSONObject();
+                sensor.put("sensorname", sensorname);
+                JSONArray timeSeriesData = new JSONArray();
+                long start = Long.MAX_VALUE;
+                long end = Long.MIN_VALUE;
+                for (Pair<Long, String> sensorData: tmpMap.get(sensorname)) {
+                    if (sensorData.getFirst() < start) {
+                        start = sensorData.getFirst();
+                    }
+                    if (sensorData.getFirst() > end) {
+                        end = sensorData.getFirst();
+                    }
+                    JSONObject datapoint = new JSONObject();
+                    datapoint.put("timestamp", sensorData.getFirst());
+                    datapoint.put("datapoint", sensorData.getSecond());
+                    timeSeriesData.put(datapoint);
+                }
+                sensor.put("timeSeriesData", timeSeriesData);
+                sensor.put("start", start);
+                sensor.put("end", end);
+                data.put(sensor);
             }
-            try {
-                req.put("datasetKey", this.datasetKey);
-                req.put("time", stringTime);
-                req.put("datapoint", datapoint);
-                req.put("sensorname", sensorName);
-                JSONObject ret = NetworkCommunicator.sendPost(this.baseUrl + ADDDATASETINCREMENT, req);
-                System.out.println("RES: " + ret);
-                return ret.getInt("STATUS") == 200;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                System.out.println("EXCEPTION");
-                return false;
-            }
+            req.put("data", data);
+            JSONObject ret = communicator.sendPost(req);
+            return ret.getInt("STATUS") == 200;
         }, this.executorService);
         return future;
     }
 
     public void onComplete() {
-        this.executorService.shutdown();
+        synchronized (this) {
+            upload(this.dataStore);
+            this.executorService.shutdown();
+            while (!this.executorService.isTerminated()) {
+            }
+        }
     }
 
     /**
@@ -100,7 +151,7 @@ public abstract class IncrementalRecorder {
      * @param value The value to transmit
      * @return true if the append was successful
      */
-    public abstract CompletableFuture<Boolean> addDataPoint(String sensorName, double value);
+    public abstract void addDataPoint(String sensorName, double value);
 
     /**
      * Appends a single datapoint to the dataset
@@ -109,5 +160,5 @@ public abstract class IncrementalRecorder {
      * @param value The value to transmit
      * @return true if the append was successful
      */
-    public abstract CompletableFuture<Boolean> addDataPoint(long time, String sensorName, double value);
+    public abstract void addDataPoint(long time, String sensorName, double value);
 }

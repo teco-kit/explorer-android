@@ -13,14 +13,26 @@ import java.net.URL;
 
 public class NetworkCommunicator {
 
+    private String requestURL;
+
+
+    /**
+     * Send multiple JSONObjects to the same route
+     * @param requestURL The URL you want to send the data to
+     */
+    public NetworkCommunicator(String requestURL) {
+        this.requestURL = requestURL;
+    }
+
+
+
     /**
      * Sends data with post request to server and gets its response
-     * @param requestURL The URL you want to send the data to
      * @param sendObject The data to be send as JsonObject
      * @return A JsonObject with your data
      */
-    public static JSONObject sendPost(final String requestURL, final JSONObject sendObject) {
-        final JSONObject returnObj = new JSONObject();
+    public JSONObject sendPost(JSONObject sendObject) {
+        JSONObject returnObj = new JSONObject();
         try {
             URL url = new URL(requestURL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
