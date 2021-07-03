@@ -36,6 +36,7 @@ public abstract class IncrementalRecorder {
      * @param projectKey The key for the project, to be found on the settings page
      * @param datasetName The name of the dataset
      * @param useDeviceTime True if you want to use the time from the device instead of providing your own timestamps
+     * @throws Exception Failed to create dataset in backend
      */
     protected IncrementalRecorder(String baseUrl, String projectKey, String datasetName, boolean useDeviceTime) throws Exception {
         this.useDeviceTime = useDeviceTime;
@@ -76,6 +77,7 @@ public abstract class IncrementalRecorder {
 
     /**
      * Uploads dataPoint
+     * @param sensorName The name of the sensor the datapoint belongs to
      * @param datapoint The dataPoint to upload as JSON
      * @param time Record time of the dataPoint
      */
@@ -145,7 +147,10 @@ public abstract class IncrementalRecorder {
         synchronized (this) {
             upload(this.dataStore);
             this.executorService.shutdown();
-            while (!this.executorService.isTerminated()) {
+            try {
+                this.executorService.awaitTermination(1, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -154,7 +159,6 @@ public abstract class IncrementalRecorder {
      * Appends a single datapoint to the dataset
      * @param sensorName The datapoint to append
      * @param value The value to transmit
-     * @return true if the append was successful
      */
     public abstract void addDataPoint(String sensorName, double value);
 
@@ -163,7 +167,6 @@ public abstract class IncrementalRecorder {
      * @param time Record time of the dataPoint
      * @param sensorName The datapoint to append
      * @param value The value to transmit
-     * @return true if the append was successful
      */
     public abstract void addDataPoint(long time, String sensorName, double value);
 }

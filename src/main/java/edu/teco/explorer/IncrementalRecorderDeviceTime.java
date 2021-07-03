@@ -7,6 +7,7 @@ public class IncrementalRecorderDeviceTime extends IncrementalRecorder{
      * @param baseUrl       The url of the backend server as well as the port
      * @param projectKey    The key for the project, to be found on the settings page
      * @param datasetName   The name of the dataset
+     * @throws Exception Failed to create dataset in backend
      */
     protected IncrementalRecorderDeviceTime(String baseUrl, String projectKey, String datasetName) throws Exception {
         super(baseUrl, projectKey, datasetName, true);

@@ -13,6 +13,7 @@ public class Recorder {
     /**
      * Class for recording datasets and sending them to the Explorer
      * @param backendUrl The backend-URL of the explorer
+     * @param key The deviceApiKey
      */
     public Recorder(String backendUrl, String key) {
         this.backendUrl = backendUrl;
@@ -24,6 +25,7 @@ public class Recorder {
      * @param useDeviceTime True if you don't want to provide own timestamps
      * @param name The name of the dataset
      * @return An object to record the dataset incrementally
+     * @throws Exception Failed to create dataset in backend
      */
     public IncrementalRecorder getIncrementalDataset(String name, boolean useDeviceTime) throws Exception {
         if (!useDeviceTime) {
