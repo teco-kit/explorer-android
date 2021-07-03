@@ -18,7 +18,6 @@ public class IncrementalRecorderDeviceTime extends IncrementalRecorder{
      * Appends a single datapoint to the dataset
      * @param sensorName The datapoint to append
      * @param value The value to transmit
-     * @return true if the append was successful
      */
     public void addDataPoint(String sensorName, double value) {
         super.uploadDataPoint(sensorName, value, -1);
