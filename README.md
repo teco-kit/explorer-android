@@ -50,30 +50,40 @@ boolean res = recorder.sendDataset(JSONObject); // Dataset as JSONObject
 
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
-IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", false); // false to use custom timestamps
+try {
+  IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", false); // false to use custom timestamps
 
-// The CompletableFuture indicates whether the transmission was successful
-CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316);
+  // time should be a unix timestamp
+  incRecorder.addDataPoint(1595506316000L, "accX", 123);
 
-// This will throw an UnsupportedOperationException because no timestamp was provided
-CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 124);
+  // This will throw an UnsupportedOperationException because no timestamp was provided
+  incRecorder.addDataPoint("accX", 124);
 
-// Wait until all values have been send
-incRecorder.onComplete();
+  // Tells the libarary that all data has been recorded
+  // Uploads all remaining datapoints to the server
+  incRecorder.onComplete();
+}
+} catch (Exception e) {
+    e.printStackTrace();
+}
 ```
 
-#### Upload datasets in increments with timestamps from server
+#### Upload datasets in increments with timestamps from the device
 
 ```java
 Recorder recorder = new Recorder("explorerBackendUrl", "deviceApiKey");
-IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", true); // true to use servertime
+try {
+  IncrementalRecorder incRecorder = recorder.getIncrementalDataset("datasetName", true); // true to use deviceTime
 
-// The CompletableFuture indicates whether the transmission was successful
-CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123);
 
-// This will throw an UnsupportedOperationException because a timestamp was provided
-CompletableFuture<Boolean> res = incRecorder.addDataPoint("accX", 123, 1595506316);
+  incRecorder.addDataPoint("accX", 123);
 
-// Wait until all values have been send
-incRecorder.onComplete();
+  // This will throw an UnsupportedOperationException because a timestamp was provided
+  incRecorder.addDataPoint(1595506316000L, "accX", 123);
+
+  // Wait until all values have been send
+  incRecorder.onComplete();
+} catch (Exception e) {
+    e.printStackTrace();
+}
 ```
